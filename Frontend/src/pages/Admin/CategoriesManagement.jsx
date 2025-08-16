@@ -5,7 +5,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const API_URL = "http://localhost:5000/categories";
+const API_URL = "https://ihurironews.onrender.com/categories";
 
 const CategoriesManagement = () => {
   const [categories, setCategories] = useState([]);

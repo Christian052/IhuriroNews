@@ -40,7 +40,7 @@ export default function AdminMessages() {
   const fetchComments = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/api/comments");
+      const res = await axios.get("https://ihurironews.onrender.com/api/comments");
       setComments(res.data);
     } catch (err) {
       console.error(err);
@@ -66,7 +66,7 @@ export default function AdminMessages() {
 
   const handleMarkAsRead = async (id) => {
     try {
-      await axios.patch(`http://localhost:5000/api/comments/${id}/read`);
+      await axios.patch(`https://ihurironews.onrender.com/api/comments/${id}/read`);
       fetchComments();
       toast.success("Marked as read.");
     } catch {
@@ -76,7 +76,7 @@ export default function AdminMessages() {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/comments/${commentToDeleteId}`);
+      await axios.delete(`https://ihurironews.onrender.com/api/comments/${commentToDeleteId}`);
       fetchComments();
       toast.success("Comment deleted.");
     } catch {

@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import AdminHeader from "../../components/admin/AdminHeader";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 
-const API_URL = "http://localhost:5000/api/settings";
+const API_URL = "https://ihurironews.onrender.com/api/settings";
 const USER_ID = "replace-this-with-user-id"; // Dynamic user ID from auth or localStorage
 
 const Settings = () => {

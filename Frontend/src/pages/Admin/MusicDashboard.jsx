@@ -12,7 +12,7 @@ const MusicDashboard = () => {
 
   const fetchSongs = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/songs");
+      const res = await axios.get("https://ihurironews.onrender.com/api/songs");
       setSongs(res.data);
     } catch (err) {
       console.error("Error fetching songs:", err);

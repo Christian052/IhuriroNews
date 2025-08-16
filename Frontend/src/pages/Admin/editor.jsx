@@ -6,8 +6,8 @@ import AdminHeader from '../../components/admin/AdminHeader';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import { toast, ToastContainer } from 'react-toastify';
 
-const API_BASE = 'http://localhost:5000/api/news';
-const API_CATEGORIES = 'http://localhost:5000/categories';
+const API_BASE = 'https://ihurironews.onrender.com/api/news';
+const API_CATEGORIES = 'https://ihurironews.onrender.com/categories';
 
 export default function NewsListPage() {
   const [posts, setPosts] = useState([]);

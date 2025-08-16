@@ -14,7 +14,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { DarkModeContext } from "../../contexts/DarkModeContext";
 import "react-toastify/dist/ReactToastify.css";
 
-const API_URL = "http://localhost:5000/api/users";
+const API_URL = "https://ihurironews.onrender.com/api/users";
 const roles = ["Admin", "Editor", "Writer", "Contributor"];
 const statuses = ["Active", "Inactive"];
 

@@ -7,9 +7,9 @@ import AdminSidebar from "../../components/admin/AdminSidebar";
 import { XCircle } from "lucide-react";
 import "react-quill/dist/quill.snow.css";
 
-const API_BASE = "http://localhost:5000/api/news";
-const API_CATEGORIES = "http://localhost:5000/categories";
-const baseUrl = "http://localhost:5000"; // <-- base URL for images
+const API_BASE = "https://ihurironews.onrender.com/api/news";
+const API_CATEGORIES = "https://ihurironews.onrender.com/categories";
+const baseUrl = "https://ihurironews.onrender.com"; // <-- base URL for images
 
 export default function NewsFormPage() {
   const { id } = useParams();

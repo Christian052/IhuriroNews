@@ -1,7 +1,7 @@
  
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000"; // Change if backend is hosted elsewhere
+const BASE_URL = "https://ihurironews.onrender.com"; // Change if backend is hosted elsewhere
 
 export const fetchArticles = () => axios.get(`${BASE_URL}/api/news`);
 export const fetchUsers = () => axios.get(`${BASE_URL}/api/users`);

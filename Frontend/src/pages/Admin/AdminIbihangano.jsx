@@ -23,7 +23,7 @@ const AdminIbihangano = () => {
     setFetching(true)
     setError(null)
     try {
-      const res = await axios.get('http://localhost:5000/api/music')
+      const res = await axios.get('https://ihurironews.onrender.com/api/music')
       if (Array.isArray(res.data)) {
         setLinks(res.data)
         // Fetch video metadata
@@ -76,7 +76,7 @@ const AdminIbihangano = () => {
     if (!newLink.trim()) return
     setLoading(true)
     try {
-      await axios.post('http://localhost:5000/api/music', { youtubeUrl: newLink.trim() })
+      await axios.post('https://ihurironews.onrender.com/api/music', { youtubeUrl: newLink.trim() })
       setNewLink('')
       await fetchLinks()
     } catch (err) {
@@ -89,7 +89,7 @@ const AdminIbihangano = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this link?')) return
     try {
-      await axios.delete(`http://localhost:5000/api/music/${id}`)
+      await axios.delete(`https://ihurironews.onrender.com/api/music/${id}`)
       setLinks((prev) => prev.filter((link) => link._id !== id))
     } catch (err) {
       alert('Failed to delete link. Please try again.')
