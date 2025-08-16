@@ -26,7 +26,7 @@ app.use(cors());
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/images/"); // folder must exist or create it
+    cb(null, "uploads/Images/"); // folder must exist or create it
   },
   filename: function (req, file, cb) {
     // Unique filename with timestamp + original name
@@ -40,8 +40,8 @@ const upload = multer({ storage });
 // Serve static files from uploads folder
 const path = require("path");
 app.use(
-  "/uploads/images",
-  express.static(path.join(__dirname, "uploads", "images"))
+  "/uploads/Images",
+  express.static(path.join(__dirname, "uploads", "Images"))
 );
 
 // Connect to MongoDB
@@ -375,7 +375,7 @@ app.post("/api/news", upload.single("image"), async (req, res) => {
     let imageUrl = null;
 
     if (req.file) {
-      imageUrl = `${req.protocol}://${req.get("host")}/uploads/images/${
+      imageUrl = `${req.protocol}://${req.get("host")}/uploads/Images/${
         req.file.filename
       }`;
     }
@@ -423,7 +423,7 @@ app.put("/api/news/:id", upload.single("image"), async (req, res) => {
   try {
     const updateData = { ...req.body };
     if (req.file) {
-      updateData.image = `${req.protocol}://${req.get("host")}/uploads/images/${
+      updateData.image = `${req.protocol}://${req.get("host")}/uploads/Images/${
         req.file.filename
       }`;
     }
