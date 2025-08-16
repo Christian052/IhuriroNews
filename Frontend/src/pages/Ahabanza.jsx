@@ -55,11 +55,11 @@ const Ahabanza = () => {
   const [errorNews, setErrorNews] = useState("");
   const [errorVideos, setErrorVideos] = useState("");
 
-  // pagination state
+  // Pagination state
   const [newsPage, setNewsPage] = useState(1);
   const [videosPage, setVideosPage] = useState(1);
-  const newsPerPage = 6; // show 6 news per page
-  const videosPerPage = 6; // show 6 videos per page
+  const newsPerPage = 6; 
+  const videosPerPage = 6; 
 
   const YOUTUBE_API_KEY = "AIzaSyBb1SF6KjxnFM6jca7szY17tHHhdJqjnzQ";
 
@@ -79,7 +79,6 @@ const Ahabanza = () => {
         setLoadingNews(false);
       }
     };
-
     fetchNews();
   }, []);
 
@@ -118,7 +117,6 @@ const Ahabanza = () => {
                 };
               })
             );
-
             setVideos(results.filter(Boolean));
           } catch (err) {
             console.error("YouTube API error:", err);
@@ -127,7 +125,6 @@ const Ahabanza = () => {
             setLoadingVideos(false);
           }
         };
-
         fetchVideoData();
       } catch (error) {
         console.error("Error fetching music from DB:", error);
@@ -135,11 +132,10 @@ const Ahabanza = () => {
         setLoadingVideos(false);
       }
     };
-
     fetchDbVideos();
   }, []);
 
-  // pagination calculations
+  // Pagination calculations
   const paginatedNews = news.slice(1).slice(
     (newsPage - 1) * newsPerPage,
     newsPage * newsPerPage
@@ -246,26 +242,24 @@ const Ahabanza = () => {
                     ))}
                   </div>
 
-                  {/* News pagination controls */}
-                  <div className="flex justify-center items-center space-x-2 mt-6">
+                  {/* News pagination with icons */}
+                  <div className="flex justify-center items-center space-x-4 mt-6 text-xl font-bold">
                     <button
                       onClick={() => setNewsPage((p) => Math.max(p - 1, 1))}
                       disabled={newsPage === 1}
                       className="px-3 py-1 border rounded disabled:opacity-50"
                     >
-                      Previous
+                      &lt;
                     </button>
                     <span>
-                      Page {newsPage} of {totalNewsPages}
+                      {newsPage} / {totalNewsPages}
                     </span>
                     <button
-                      onClick={() =>
-                        setNewsPage((p) => Math.min(p + 1, totalNewsPages))
-                      }
+                      onClick={() => setNewsPage((p) => Math.min(p + 1, totalNewsPages))}
                       disabled={newsPage === totalNewsPages}
                       className="px-3 py-1 border rounded disabled:opacity-50"
                     >
-                      Next
+                      &gt;
                     </button>
                   </div>
                 </>
@@ -317,17 +311,17 @@ const Ahabanza = () => {
                     ))}
                   </div>
 
-                  {/* Videos pagination controls */}
-                  <div className="flex justify-center items-center space-x-2 mt-6">
+                  {/* Videos pagination with icons */}
+                  <div className="flex justify-center items-center space-x-4 mt-6 text-xl font-bold">
                     <button
                       onClick={() => setVideosPage((p) => Math.max(p - 1, 1))}
                       disabled={videosPage === 1}
                       className="px-3 py-1 border rounded disabled:opacity-50"
                     >
-                      Previous
+                      &lt;
                     </button>
                     <span>
-                      Page {videosPage} of {totalVideoPages}
+                      {videosPage} / {totalVideoPages}
                     </span>
                     <button
                       onClick={() =>
@@ -336,7 +330,7 @@ const Ahabanza = () => {
                       disabled={videosPage === totalVideoPages}
                       className="px-3 py-1 border rounded disabled:opacity-50"
                     >
-                      Next
+                      &gt;
                     </button>
                   </div>
                 </>
@@ -361,11 +355,6 @@ const Ahabanza = () => {
                   alt="Twamamaza"
                   className="w-full h-full object-cover"
                   loading="lazy"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src =
-                      "https://via.placeholder.com/400x300?text=Ad+Image";
-                  }}
                 />
               </div>
             </motion.div>
