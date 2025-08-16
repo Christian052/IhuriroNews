@@ -4,18 +4,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const sportsImage =
   "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600&h=400&fit=crop";
 
 // News Card component
 const Card = ({ title, time, image, isSquare = false, delay = 0 }) => {
-  const imageUrl = image?.startsWith("https")
-  ? image
-  : image
-  ? `https://ihurironews.onrender.com/uploads/images/${image}`
-  : "https://via.placeholder.com/400x300?text=No+Image";
+  const imageUrl = image?.startsWith("http")
+    ? image
+    : image
+    ? `https://ihurironews.onrender.com/uploads/${image}`
+    : "https://via.placeholder.com/400x300?text=No+Image";
 
   return (
     <motion.div
@@ -48,27 +47,29 @@ const Card = ({ title, time, image, isSquare = false, delay = 0 }) => {
   );
 };
 
-// Videos Carousel Component
-const VISIBLE_CARDS = 3;
-const SCROLL_INTERVAL = 4000;
+// Constants for videos carousel
+const VISIBLE_CARDS = 3; // show 3 cards at once
+const SCROLL_INTERVAL = 15000; // 15 seconds
 
 const VideosCarousel = ({ videos }) => {
-  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [startIndex, setStartIndex] = useState(0);
 
+  // Auto advance startIndex every 10 seconds
   useEffect(() => {
-    if (videos.length <= VISIBLE_CARDS) return;
+    if (videos.length <= VISIBLE_CARDS) return; // no scroll needed
 
     const interval = setInterval(() => {
-      setCarouselIndex((prev) => (prev + VISIBLE_CARDS) % videos.length);
+      setStartIndex((prev) => (prev + VISIBLE_CARDS) % videos.length);
     }, SCROLL_INTERVAL);
 
     return () => clearInterval(interval);
   }, [videos]);
 
+  // Get current visible cards, wrapping around if needed
   const getVisibleCards = () => {
     let visible = [];
     for (let i = 0; i < VISIBLE_CARDS; i++) {
-      visible.push(videos[(carouselIndex + i) % videos.length]);
+      visible.push(videos[(startIndex + i) % videos.length]);
     }
     return visible;
   };
@@ -79,7 +80,7 @@ const VideosCarousel = ({ videos }) => {
     <div className="relative overflow-hidden">
       <AnimatePresence initial={false} mode="wait">
         <motion.div
-          key={carouselIndex}
+          key={startIndex}
           className="flex space-x-6"
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -125,26 +126,8 @@ const Ahabanza = () => {
   const [errorNews, setErrorNews] = useState("");
   const [errorVideos, setErrorVideos] = useState("");
 
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
-
-  const otherNews = news.slice(1);
-  const totalPages = Math.ceil(Math.max(otherNews.length, 0) / itemsPerPage);
-  const currentNews = otherNews.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const handlePrev = () => {
-    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
-  };
-
-  const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
-  };
-
   const YOUTUBE_API_KEY = "AIzaSyBb1SF6KjxnFM6jca7szY17tHHhdJqjnzQ";
+
   const getYouTubeId = (url) => {
     const match = url.match(/(?:v=|\/embed\/|\.be\/)([a-zA-Z0-9_-]{11})/);
     return match ? match[1] : null;
@@ -155,12 +138,13 @@ const Ahabanza = () => {
       try {
         const res = await axios.get("https://ihurironews.onrender.com/api/news");
         setNews(res.data);
-      } catch {
+      } catch (err) {
         setErrorNews("Ntibishobotse kubona amakuru.");
       } finally {
         setLoadingNews(false);
       }
     };
+
     fetchNews();
   }, []);
 
@@ -169,41 +153,54 @@ const Ahabanza = () => {
       try {
         const response = await axios.get("https://ihurironews.onrender.com/api/music");
         const dbVideos = response.data;
+
         if (dbVideos.length === 0) {
           setVideos([]);
           setLoadingVideos(false);
           return;
         }
 
-        const results = await Promise.all(
-          dbVideos.map(async (item) => {
-            const id = getYouTubeId(item.youtubeUrl);
-            if (!id) return null;
-            const res = await axios.get(
-              `https://www.googleapis.com/youtube/v3/videos?id=${id}&key=${YOUTUBE_API_KEY}&part=snippet,statistics`
-            );
-            const video = res.data.items?.[0];
-            if (!video?.snippet) return null;
-            return {
-              id,
-              url: item.youtubeUrl,
-              title: video.snippet.title,
-              artist: video.snippet.channelTitle,
-              views: `${Number(
-                video.statistics.viewCount
-              ).toLocaleString()} views`,
-              thumbnail: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
-            };
-          })
-        );
+        const fetchVideoData = async () => {
+          try {
+            const results = await Promise.all(
+              dbVideos.map(async (item) => {
+                const id = getYouTubeId(item.youtubeUrl);
+                if (!id) return null;
 
-        setVideos(results.filter(Boolean));
-      } catch {
-        setErrorVideos("Ntibishobotse kubona amakuru ya YouTube.");
-      } finally {
+                const res = await axios.get(
+                  `https://www.googleapis.com/youtube/v3/videos?id=${id}&key=${YOUTUBE_API_KEY}&part=snippet,statistics`
+                );
+                const video = res.data.items?.[0];
+                if (!video?.snippet) return null;
+
+                return {
+                  id,
+                  url: item.youtubeUrl,
+                  title: video.snippet.title,
+                  artist: video.snippet.channelTitle,
+                  views: `${Number(video.statistics.viewCount).toLocaleString()} views`,
+                  thumbnail: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
+                };
+              })
+            );
+
+            setVideos(results.filter(Boolean));
+          } catch (err) {
+            console.error("YouTube API error:", err);
+            setErrorVideos("Ntibishobotse kubona amakuru ya YouTube.");
+          } finally {
+            setLoadingVideos(false);
+          }
+        };
+
+        fetchVideoData();
+      } catch (error) {
+        console.error("Error fetching music from DB:", error);
+        setErrorVideos("Ntibishobotse kubona indirimbo.");
         setLoadingVideos(false);
       }
     };
+
     fetchDbVideos();
   }, []);
 
@@ -252,7 +249,7 @@ const Ahabanza = () => {
                             news[0].image?.startsWith("http")
                               ? news[0].image
                               : news[0].image
-                              ? `https://ihurironews.onrender.com/uploads/images/${news[0].image}`
+                              ? `https://ihurironews.onrender.com/uploads/${news[0].image}`
                               : "https://via.placeholder.com/400x300?text=No+Image"
                           }
                           alt={news[0].title}
@@ -271,7 +268,7 @@ const Ahabanza = () => {
               )}
             </motion.div>
 
-            {/* All other news with pagination */}
+            {/* All other news */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -284,74 +281,36 @@ const Ahabanza = () => {
                 <p className="text-sm text-gray-500">Turimo kubikurangira...</p>
               ) : errorNews ? (
                 <p className="text-sm text-red-600">{errorNews}</p>
-              ) : otherNews.length === 0 ? (
-                <p className="text-sm text-gray-500">
-                  Nta makuru yandi abonetse.
-                </p>
+              ) : news.length <= 1 ? (
+                <p className="text-sm text-gray-500">Nta makuru yandi abonetse.</p>
               ) : (
-                <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    {currentNews.map((item, index) => (
-                      <Link
-                        key={item._id}
-                        to={`/amakuru/${item._id}`}
-                        className="block cursor-pointer"
-                        aria-label={`Soma inkuru: ${item.title}`}
-                      >
-                        <Card
-                          title={item.title}
-                          time={new Date(item.updatedAt).toLocaleString(
-                            "rw-RW"
-                          )}
-                          image={item.image}
-                          delay={index * 0.1}
-                        />
-                      </Link>
-                    ))}
-                  </div>
-                  {/* Pagination Controls */}
-                  <div className="flex justify-center items-center mt-6 space-x-4">
-                    <button
-                      onClick={handlePrev}
-                      disabled={currentPage === 1}
-                      className={`px-4 py-2 rounded-lg flex items-center space-x-1 ${
-                        currentPage === 1
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-blue-600 text-white hover:bg-blue-700"
-                      }`}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  {news.slice(1).map((item, index) => (
+                    <Link
+                      key={item._id}
+                      to={`/amakuru/${item._id}`}
+                      className="block cursor-pointer"
+                      aria-label={`Soma inkuru: ${item.title}`}
                     >
-                      <ChevronLeft size={16} />
-                    </button>
-
-                    <span className="text-sm text-gray-700">
-                      {currentPage} . {totalPages}
-                    </span>
-
-                    <button
-                      onClick={handleNext}
-                      disabled={currentPage === totalPages}
-                      className={`px-4 py-2 rounded-lg flex items-center space-x-1 ${
-                        currentPage === totalPages
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-blue-600 text-white hover:bg-blue-700"
-                      }`}
-                    >
-                      <ChevronRight size={16} />
-                    </button>
-                  </div>
-                </>
+                      <Card
+                        title={item.title}
+                        time={new Date(item.updatedAt).toLocaleString("rw-RW")}
+                        image={item.image}
+                        delay={index * 0.1}
+                      />
+                    </Link>
+                  ))}
+                </div>
               )}
             </motion.div>
 
-            {/* Videos Section */}
+            {/* Videos Section with 3 cards visible and auto-scroll */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.6 }}
             >
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Ibihangano
-              </h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Ibihangano</h2>
               {loadingVideos ? (
                 <p className="text-sm text-gray-500">Turimo kubikurangira...</p>
               ) : errorVideos ? (
