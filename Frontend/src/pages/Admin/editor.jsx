@@ -1,0 +1,212 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { Plus, Edit, Trash2, Search } from 'lucide-react';
+import AdminHeader from '../../components/admin/AdminHeader';
+import AdminSidebar from '../../components/admin/AdminSidebar';
+import { toast, ToastContainer } from 'react-toastify';
+
+const API_BASE = 'http://localhost:5000/api/news';
+const API_CATEGORIES = 'http://localhost:5000/categories';
+
+export default function NewsListPage() {
+  const [posts, setPosts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [errorLoading, setErrorLoading] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedStatus, setSelectedStatus] = useState('All');
+
+  const statuses = ['All', 'published', 'draft'];
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchPosts();
+    fetchCategories();
+  }, []);
+
+  const fetchPosts = async () => {
+    setLoading(true);
+    setErrorLoading(false);
+    try {
+      const res = await axios.get(API_BASE);
+      setPosts(res.data);
+    } catch (e) {
+      setErrorLoading(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const res = await axios.get(API_CATEGORIES);
+      // Assuming response data is an array of categories with .name field
+      setCategories(['All', ...res.data.map((cat) => cat.name)]);
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
+      setCategories(['All']); // fallback
+    }
+  };
+
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm('Are you sure you want to delete this post?')) return;
+    try {
+      await axios.delete(`${API_BASE}/${postId}`);
+      toast.success('Post deleted');
+      setPosts(posts.filter((p) => p._id !== postId));
+    } catch {
+      toast.error('Failed to delete post');
+    }
+  };
+
+  const filteredPosts = posts.filter((post) => {
+    const matchesSearch =
+      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.author.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
+    const matchesStatus = selectedStatus === 'All' || post.status === selectedStatus;
+
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
+
+  return (
+    <>
+      <ToastContainer />
+      <AdminHeader />
+      <div className="flex min-h-screen">
+        <AdminSidebar />
+        <main className="flex-1 bg-gray-100 dark:bg-gray-900 p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">News Editor</h1>
+            <button
+              onClick={() => navigate('/admin/news/new')}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center gap-2"
+            >
+              <Plus size={18} /> New Post
+            </button>
+          </div>
+
+          {/* Filters */}
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow space-y-4 sm:space-y-0 sm:flex sm:items-center sm:gap-4 mb-6">
+            {/* Search */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                placeholder="Search articles..."
+              />
+            </div>
+
+            {/* Category Filter */}
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+            >
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+
+            {/* Status Filter */}
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+            >
+              {statuses.map((stat) => (
+                <option key={stat} value={stat}>
+                  {stat}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {loading ? (
+            <div className="text-center text-gray-600 dark:text-gray-300 py-10">Loading posts...</div>
+          ) : errorLoading ? (
+            <div className="text-center py-6 text-red-600 dark:text-red-400">
+              Failed to load posts.
+              <button
+                onClick={fetchPosts}
+                className="ml-4 bg-yellow-500 px-3 py-1 rounded hover:bg-yellow-600 text-white"
+              >
+                Retry
+              </button>
+            </div>
+          ) : (
+            <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded shadow">
+              <table className="min-w-full text-sm">
+                <thead className="bg-gray-100 dark:bg-gray-700">
+                  <tr>
+                    <th className="px-6 py-3 text-left font-medium text-gray-600 dark:text-gray-300">Title</th>
+                    <th className="px-6 py-3 text-left font-medium text-gray-600 dark:text-gray-300">Author</th>
+                    <th className="px-6 py-3 text-left font-medium text-gray-600 dark:text-gray-300">Category</th>
+                    <th className="px-6 py-3 text-left font-medium text-gray-600 dark:text-gray-300">Status</th>
+                    <th className="px-6 py-3 text-left font-medium text-gray-600 dark:text-gray-300">Updated</th>
+                    <th className="px-6 py-3 text-left font-medium text-gray-600 dark:text-gray-300">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  {filteredPosts.length ? (
+                    filteredPosts.map((post) => (
+                      <tr key={post._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <td className="px-6 py-4">{post.title}</td>
+                        <td className="px-6 py-4">{post.author}</td>
+                        <td className="px-6 py-4">{post.category}</td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-block px-2 py-1 text-xs rounded border ${
+                              post.status === 'published'
+                                ? 'bg-green-100 text-green-700 border-green-700'
+                                : 'bg-gray-100 text-gray-700 border-gray-700'
+                            }`}
+                          >
+                            {post.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">{new Date(post.updatedAt).toLocaleDateString()}</td>
+                        <td className="px-6 py-4 flex gap-2">
+                          <button
+                            onClick={() => navigate(`/admin/news/${post._id}/edit`)}
+                            className="text-blue-600 hover:underline"
+                            aria-label="Edit Post"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDeletePost(post._id)}
+                            className="text-red-600 hover:underline"
+                            aria-label="Delete Post"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="text-center py-4 text-gray-500 dark:text-gray-400">
+                        No posts found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </main>
+      </div>
+    </>
+  );
+}
