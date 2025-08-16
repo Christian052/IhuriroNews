@@ -55,6 +55,12 @@ const Ahabanza = () => {
   const [errorNews, setErrorNews] = useState("");
   const [errorVideos, setErrorVideos] = useState("");
 
+  // pagination state
+  const [newsPage, setNewsPage] = useState(1);
+  const [videosPage, setVideosPage] = useState(1);
+  const newsPerPage = 6; // show 6 news per page
+  const videosPerPage = 6; // show 6 videos per page
+
   const YOUTUBE_API_KEY = "AIzaSyBb1SF6KjxnFM6jca7szY17tHHhdJqjnzQ";
 
   const getYouTubeId = (url) => {
@@ -133,6 +139,19 @@ const Ahabanza = () => {
     fetchDbVideos();
   }, []);
 
+  // pagination calculations
+  const paginatedNews = news.slice(1).slice(
+    (newsPage - 1) * newsPerPage,
+    newsPage * newsPerPage
+  );
+  const totalNewsPages = Math.ceil((news.length - 1) / newsPerPage);
+
+  const paginatedVideos = videos.slice(
+    (videosPage - 1) * videosPerPage,
+    videosPage * videosPerPage
+  );
+  const totalVideoPages = Math.ceil(videos.length / videosPerPage);
+
   return (
     <>
       <Header />
@@ -184,11 +203,6 @@ const Ahabanza = () => {
                           alt={news[0].title}
                           className="w-full h-full object-cover"
                           loading="lazy"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src =
-                              "https://via.placeholder.com/400x300?text=No+Image";
-                          }}
                         />
                       </div>
                     </div>
@@ -197,7 +211,7 @@ const Ahabanza = () => {
               )}
             </motion.div>
 
-            {/* All other news */}
+            {/* All other news with pagination */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -213,27 +227,52 @@ const Ahabanza = () => {
               ) : news.length <= 1 ? (
                 <p className="text-sm text-gray-500">Nta makuru yandi abonetse.</p>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  {news.slice(1).map((item, index) => (
-                    <Link
-                      key={item._id}
-                      to={`/amakuru/${item._id}`}
-                      className="block cursor-pointer"
-                      aria-label={`Soma inkuru: ${item.title}`}
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    {paginatedNews.map((item, index) => (
+                      <Link
+                        key={item._id}
+                        to={`/amakuru/${item._id}`}
+                        className="block cursor-pointer"
+                        aria-label={`Soma inkuru: ${item.title}`}
+                      >
+                        <Card
+                          title={item.title}
+                          time={new Date(item.updatedAt).toLocaleString("rw-RW")}
+                          image={item.image}
+                          delay={index * 0.1}
+                        />
+                      </Link>
+                    ))}
+                  </div>
+
+                  {/* News pagination controls */}
+                  <div className="flex justify-center items-center space-x-2 mt-6">
+                    <button
+                      onClick={() => setNewsPage((p) => Math.max(p - 1, 1))}
+                      disabled={newsPage === 1}
+                      className="px-3 py-1 border rounded disabled:opacity-50"
                     >
-                      <Card
-                        title={item.title}
-                        time={new Date(item.updatedAt).toLocaleString("rw-RW")}
-                        image={item.image}
-                        delay={index * 0.1}
-                      />
-                    </Link>
-                  ))}
-                </div>
+                      Previous
+                    </button>
+                    <span>
+                      Page {newsPage} of {totalNewsPages}
+                    </span>
+                    <button
+                      onClick={() =>
+                        setNewsPage((p) => Math.min(p + 1, totalNewsPages))
+                      }
+                      disabled={newsPage === totalNewsPages}
+                      className="px-3 py-1 border rounded disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </>
               )}
             </motion.div>
 
-            {/* ✅ Videos Section with responsive grid */}
+            {/* Videos Section with pagination */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -249,33 +288,58 @@ const Ahabanza = () => {
               ) : videos.length === 0 ? (
                 <p className="text-sm text-gray-500">Nta videwo zabonetse.</p>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {videos.map((video) => (
-                    <a
-                      key={video.id}
-                      href={video.url}
-                      target="_blank"
-                      rel="nofollow noreferrer noopener"
-                      className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition duration-200"
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {paginatedVideos.map((video) => (
+                      <a
+                        key={video.id}
+                        href={video.url}
+                        target="_blank"
+                        rel="nofollow noreferrer noopener"
+                        className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition duration-200"
+                      >
+                        <div className="aspect-video">
+                          <img
+                            src={video.thumbnail}
+                            alt={video.title}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                        <div className="p-4">
+                          <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2">
+                            {video.title}
+                          </h3>
+                          <p className="text-gray-700">{video.artist}</p>
+                          <p className="text-sm text-gray-500">{video.views}</p>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+
+                  {/* Videos pagination controls */}
+                  <div className="flex justify-center items-center space-x-2 mt-6">
+                    <button
+                      onClick={() => setVideosPage((p) => Math.max(p - 1, 1))}
+                      disabled={videosPage === 1}
+                      className="px-3 py-1 border rounded disabled:opacity-50"
                     >
-                      <div className="aspect-video">
-                        <img
-                          src={video.thumbnail}
-                          alt={video.title}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2">
-                          {video.title}
-                        </h3>
-                        <p className="text-gray-700">{video.artist}</p>
-                        <p className="text-sm text-gray-500">{video.views}</p>
-                      </div>
-                    </a>
-                  ))}
-                </div>
+                      Previous
+                    </button>
+                    <span>
+                      Page {videosPage} of {totalVideoPages}
+                    </span>
+                    <button
+                      onClick={() =>
+                        setVideosPage((p) => Math.min(p + 1, totalVideoPages))
+                      }
+                      disabled={videosPage === totalVideoPages}
+                      className="px-3 py-1 border rounded disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </>
               )}
             </motion.div>
           </div>
