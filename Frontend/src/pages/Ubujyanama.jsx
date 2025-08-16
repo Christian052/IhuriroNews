@@ -12,7 +12,7 @@ const Ubujyanama = () => {
   const categoriesToDisplay = ['Iyobokamana', 'Ubuzima', 'Urukundo'];
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/news')
+    fetch('https://ihurironews.onrender.com/api/news')
       .then((res) => res.json())
       .then((data) => {
         const filtered = data.filter((item) =>

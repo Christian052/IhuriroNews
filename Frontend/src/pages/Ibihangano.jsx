@@ -19,7 +19,7 @@ const Ibihangano = () => {
   useEffect(() => {
     const fetchDbVideos = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/music');
+        const response = await axios.get('https://ihurironews.onrender.com/api/music');
         setDbVideos(response.data);
       } catch (error) {
         console.error('Error fetching music from DB:', error);

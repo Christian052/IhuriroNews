@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Image from "../assets/Bg/lognin-image.jpg";
 
-const URL = "http://localhost:5000/api/users/login";
+const URL = "https://ihurironews.onrender.com/api/users/login";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");

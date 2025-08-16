@@ -14,7 +14,7 @@ const Card = ({ title, time, image, isSquare = false, delay = 0 }) => {
   const imageUrl = image?.startsWith("http")
     ? image
     : image
-    ? `http://localhost:5000/uploads/${image}`
+    ? `https://ihurironews.onrender.com/uploads/${image}`
     : "https://via.placeholder.com/400x300?text=No+Image";
 
   return (
@@ -153,7 +153,7 @@ const Ahabanza = () => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/news");
+        const res = await axios.get("https://ihurironews.onrender.com/api/news");
         setNews(res.data);
       } catch {
         setErrorNews("Ntibishobotse kubona amakuru.");
@@ -167,7 +167,7 @@ const Ahabanza = () => {
   useEffect(() => {
     const fetchDbVideos = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/music");
+        const response = await axios.get("https://ihurironews.onrender.com/api/music");
         const dbVideos = response.data;
         if (dbVideos.length === 0) {
           setVideos([]);
@@ -252,7 +252,7 @@ const Ahabanza = () => {
                             news[0].image?.startsWith("http")
                               ? news[0].image
                               : news[0].image
-                              ? `http://localhost:5000/uploads/${news[0].image}`
+                              ? `https://ihurironews.onrender.com/uploads/${news[0].image}`
                               : "https://via.placeholder.com/400x300?text=No+Image"
                           }
                           alt={news[0].title}

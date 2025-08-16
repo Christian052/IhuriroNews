@@ -15,7 +15,7 @@ const MusicPlayer = () => {
 
   const fetchSongs = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/songs");
+      const res = await axios.get("https://ihurironews.onrender.com/api/songs");
       setSongs(res.data);
       setError("");
     } catch (err) {
@@ -31,7 +31,7 @@ const MusicPlayer = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:5000/api/songs", {
+      const res = await axios.post("https://ihurironews.onrender.com/api/songs", {
         url: newUrl.trim(),
       });
       setSongs([res.data, ...songs]);

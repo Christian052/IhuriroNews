@@ -9,7 +9,7 @@ const AmakuruReader = () => {
   const [articles, setArticles] = useState([]);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/news/${id}`)
+    fetch(`https://ihurironews.onrender.com/api/news/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Inkuru ntiboneka");
         return res.json();
@@ -22,7 +22,7 @@ const AmakuruReader = () => {
   }, [id]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/news")
+    fetch("https://ihurironews.onrender.com/api/news")
       .then((res) => {
         if (!res.ok) throw new Error("Amakuru ntaboneka");
         return res.json();
@@ -77,7 +77,7 @@ const AmakuruReader = () => {
                 src={
                   article.image.startsWith("http")
                     ? article.image
-                    : `http://localhost:5000/uploads/${article.image}`
+                    : `https://ihurironews.onrender.com/uploads/${article.image}`
                 }
                 alt={article.title}
                 onError={(e) => {
@@ -115,7 +115,7 @@ const AmakuruReader = () => {
                       src={
                         item.image?.startsWith("http")
                           ? item.image
-                          : `http://localhost:5000/uploads/${item.image}`
+                          : `https://ihurironews.onrender.com/uploads/${item.image}`
                       }
                       alt={`Ifoto y'inkuru ${item.title}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200"
