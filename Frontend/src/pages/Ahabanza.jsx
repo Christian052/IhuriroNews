@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
@@ -44,77 +44,6 @@ const Card = ({ title, time, image, isSquare = false, delay = 0 }) => {
         <p className="text-xs text-gray-500">{time}</p>
       </div>
     </motion.div>
-  );
-};
-
-// Constants for videos carousel
-const VISIBLE_CARDS = 3; // show 3 cards at once
-const SCROLL_INTERVAL = 15000; // 15 seconds
-
-const VideosCarousel = ({ videos }) => {
-  const [startIndex, setStartIndex] = useState(0);
-
-  // Auto advance startIndex every 10 seconds
-  useEffect(() => {
-    if (videos.length <= VISIBLE_CARDS) return; // no scroll needed
-
-    const interval = setInterval(() => {
-      setStartIndex((prev) => (prev + VISIBLE_CARDS) % videos.length);
-    }, SCROLL_INTERVAL);
-
-    return () => clearInterval(interval);
-  }, [videos]);
-
-  // Get current visible cards, wrapping around if needed
-  const getVisibleCards = () => {
-    let visible = [];
-    for (let i = 0; i < VISIBLE_CARDS; i++) {
-      visible.push(videos[(startIndex + i) % videos.length]);
-    }
-    return visible;
-  };
-
-  const visibleCards = getVisibleCards();
-
-  return (
-    <div className="relative overflow-hidden">
-      <AnimatePresence initial={false} mode="wait">
-        <motion.div
-          key={startIndex}
-          className="flex space-x-6"
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{ duration: 0.7 }}
-        >
-          {visibleCards.map((video) => (
-            <a
-              key={video.id}
-              href={video.url}
-              target="_blank"
-              rel="nofollow noreferrer noopener"
-              className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition duration-200 flex-shrink-0 w-[30%]"
-            >
-              <div className="aspect-video">
-                <img
-                  src={video.thumbnail}
-                  alt={video.title}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-              <div className="p-4">
-                <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2">
-                  {video.title}
-                </h3>
-                <p className="text-gray-700">{video.artist}</p>
-                <p className="text-sm text-gray-500">{video.views}</p>
-              </div>
-            </a>
-          ))}
-        </motion.div>
-      </AnimatePresence>
-    </div>
   );
 };
 
@@ -304,13 +233,15 @@ const Ahabanza = () => {
               )}
             </motion.div>
 
-            {/* Videos Section with 3 cards visible and auto-scroll */}
+            {/* ✅ Videos Section with responsive grid */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.6 }}
+              className="w-full"
             >
               <h2 className="text-xl font-bold text-gray-900 mb-4">Ibihangano</h2>
+
               {loadingVideos ? (
                 <p className="text-sm text-gray-500">Turimo kubikurangira...</p>
               ) : errorVideos ? (
@@ -318,7 +249,33 @@ const Ahabanza = () => {
               ) : videos.length === 0 ? (
                 <p className="text-sm text-gray-500">Nta videwo zabonetse.</p>
               ) : (
-                <VideosCarousel videos={videos} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {videos.map((video) => (
+                    <a
+                      key={video.id}
+                      href={video.url}
+                      target="_blank"
+                      rel="nofollow noreferrer noopener"
+                      className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition duration-200"
+                    >
+                      <div className="aspect-video">
+                        <img
+                          src={video.thumbnail}
+                          alt={video.title}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2">
+                          {video.title}
+                        </h3>
+                        <p className="text-gray-700">{video.artist}</p>
+                        <p className="text-sm text-gray-500">{video.views}</p>
+                      </div>
+                    </a>
+                  ))}
+                </div>
               )}
             </motion.div>
           </div>
