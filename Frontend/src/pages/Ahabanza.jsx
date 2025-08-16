@@ -14,7 +14,7 @@ const Card = ({ title, time, image, isSquare = false, delay = 0 }) => {
   const imageUrl = image?.startsWith("http")
     ? image
     : image
-    ? `https://ihurironews.onrender.com/uploads/${image}`
+    ? `http://localhost:5000/uploads/Images/${image}`
     : "https://via.placeholder.com/400x300?text=No+Image";
 
   return (

@@ -115,7 +115,7 @@ const AmakuruReader = () => {
                       src={
                         item.image?.startsWith("http")
                           ? item.image
-                          : `https://ihurironews.onrender.com/uploads/${item.image}`
+                          : `https://ihurironews.onrender.com/uploads/Images/${item.image}`
                       }
                       alt={`Ifoto y'inkuru ${item.title}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200"
