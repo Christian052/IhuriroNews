@@ -28,7 +28,10 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img src={logo} alt="IhuriroNews" className="h-10 w-auto" />
+            <img src={logo} alt="IhuriroNews" className="h-14 w-auto" />
+            <span className="ml-2 text-xl font-bold text-gray-900">
+              IhuriroNews
+            </span>
           </Link>
 
           {/* Desktop nav */}
