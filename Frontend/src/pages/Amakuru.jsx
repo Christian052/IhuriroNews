@@ -7,7 +7,7 @@ const Amakuru = () => {
   const [articles, setArticles] = useState([])
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/news')
+    fetch('https://ihurironews.onrender.com/api/news')
       .then((res) => res.json())
       .then((data) => {
         setArticles(data)
