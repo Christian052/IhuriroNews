@@ -11,11 +11,11 @@ const sportsImage =
 
 // News Card component
 const Card = ({ title, time, image, isSquare = false, delay = 0 }) => {
-  const imageUrl = image?.startsWith("http")
-    ? image
-    : image
-    ? `https://ihurironews.onrender.com/uploads/Images/${image}`
-    : "https://via.placeholder.com/400x300?text=No+Image";
+  const imageUrl = image?.startsWith("https")
+  ? image
+  : image
+  ? `https://ihurironews.onrender.com/uploads/Images/${image}`
+  : "https://via.placeholder.com/400x300?text=No+Image";
 
   return (
     <motion.div
