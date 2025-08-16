@@ -14,7 +14,7 @@ const Card = ({ title, time, image, isSquare = false, delay = 0 }) => {
   const imageUrl = image?.startsWith("https")
   ? image
   : image
-  ? `https://ihurironews.onrender.com/uploads/Images/${image}`
+  ? `https://ihurironews.onrender.com/uploads/images/${image}`
   : "https://via.placeholder.com/400x300?text=No+Image";
 
   return (
@@ -252,7 +252,7 @@ const Ahabanza = () => {
                             news[0].image?.startsWith("http")
                               ? news[0].image
                               : news[0].image
-                              ? `https://ihurironews.onrender.com/uploads/Images/${news[0].image}`
+                              ? `https://ihurironews.onrender.com/uploads/images/${news[0].image}`
                               : "https://via.placeholder.com/400x300?text=No+Image"
                           }
                           alt={news[0].title}

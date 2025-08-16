@@ -66,7 +66,7 @@ export default function NewsFormPage() {
         const isFullUrl =
           post.image.startsWith("http://") || post.image.startsWith("https://");
         setExistingImageUrl(
-          isFullUrl ? post.image : `${baseUrl}/uploads/Images/${post.image}`
+          isFullUrl ? post.image : `${baseUrl}/uploads/images/${post.image}`
         );
       } else {
         setExistingImageUrl(null);
