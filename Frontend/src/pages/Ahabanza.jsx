@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
@@ -17,10 +17,7 @@ const LoadingPage = () => {
   );
 };
 
-const sportsImage =
-  "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600&h=400&fit=crop";
-
-// News Card component
+// ✅ News Card component
 const Card = ({ title, time, image, isSquare = false, delay = 0 }) => {
   const imageUrl = image?.startsWith("http")
     ? image
@@ -80,6 +77,7 @@ const Ahabanza = () => {
     return match ? match[1] : null;
   };
 
+  // ✅ Fetch News
   useEffect(() => {
     const fetchNews = async () => {
       try {
@@ -94,6 +92,7 @@ const Ahabanza = () => {
     fetchNews();
   }, []);
 
+  // ✅ Fetch Videos from DB + YouTube API
   useEffect(() => {
     const fetchDbVideos = async () => {
       try {
@@ -106,53 +105,48 @@ const Ahabanza = () => {
           return;
         }
 
-        const fetchVideoData = async () => {
-          try {
-            const results = await Promise.all(
-              dbVideos.map(async (item) => {
-                const id = getYouTubeId(item.youtubeUrl);
-                if (!id) return null;
+        const results = await Promise.all(
+          dbVideos.map(async (item) => {
+            const id = getYouTubeId(item.youtubeUrl);
+            if (!id) return null;
 
-                const res = await axios.get(
-                  `https://www.googleapis.com/youtube/v3/videos?id=${id}&key=${YOUTUBE_API_KEY}&part=snippet,statistics`
-                );
-                const video = res.data.items?.[0];
-                if (!video?.snippet) return null;
+            try {
+              const res = await axios.get(
+                `https://www.googleapis.com/youtube/v3/videos?id=${id}&key=${YOUTUBE_API_KEY}&part=snippet,statistics`
+              );
+              const video = res.data.items?.[0];
+              if (!video?.snippet) return null;
 
-                return {
-                  id,
-                  url: item.youtubeUrl,
-                  title: video.snippet.title,
-                  artist: video.snippet.channelTitle,
-                  views: `${Number(video.statistics.viewCount).toLocaleString()} views`,
-                  thumbnail: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
-                };
-              })
-            );
-            setVideos(results.filter(Boolean));
-          } catch (err) {
-            console.error("YouTube API error:", err);
-            setErrorVideos("Ntibishobotse kubona amakuru ya YouTube.");
-          } finally {
-            setLoadingVideos(false);
-          }
-        };
-        fetchVideoData();
+              return {
+                id,
+                url: item.youtubeUrl,
+                title: video.snippet.title,
+                artist: video.snippet.channelTitle,
+                views: `${Number(video.statistics.viewCount).toLocaleString()} views`,
+                thumbnail: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
+              };
+            } catch {
+              return null;
+            }
+          })
+        );
+
+        setVideos(results.filter(Boolean));
       } catch (error) {
-        console.error("Error fetching music from DB:", error);
         setErrorVideos("Ntibishobotse kubona indirimbo.");
+      } finally {
         setLoadingVideos(false);
       }
     };
     fetchDbVideos();
   }, []);
 
-  // Pagination calculations
-  const paginatedNews = news.slice(1).slice(
+  // ✅ Pagination calculations
+  const paginatedNews = news.slice(
     (newsPage - 1) * newsPerPage,
     newsPage * newsPerPage
   );
-  const totalNewsPages = Math.ceil((news.length - 1) / newsPerPage);
+  const totalNewsPages = Math.ceil(news.length / newsPerPage);
 
   const paginatedVideos = videos.slice(
     (videosPage - 1) * videosPerPage,
@@ -161,51 +155,118 @@ const Ahabanza = () => {
   const totalVideoPages = Math.ceil(videos.length / videosPerPage);
 
   // ✅ Show full screen loading until both finish
-  if (loadingNews || loadingVideos) {
-    return <LoadingPage />;
-  }
+  if (loadingNews || loadingVideos) return <LoadingPage />;
 
-   return (
-    <div className="relative overflow-hidden">
-      <AnimatePresence initial={false} mode="wait">
-        <motion.div
-          key={startIndex}
-          className="flex space-x-6"
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{ duration: 0.7 }}
-        >
-          {visibleCards.map((video) => (
-            <a
-              key={video.id}
-              href={video.url}
-              target="_blank"
-              rel="nofollow noreferrer noopener"
-              className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition duration-200 flex-shrink-0 w-[30%]"
-            >
-              <div className="aspect-video">
-                <img
-                  src={video.thumbnail}
-                  alt={video.title}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-              <div className="p-4">
-                <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2">
-                  {video.title}
-                </h3>
-                <p className="text-gray-700">{video.artist}</p>
-                <p className="text-sm text-gray-500">{video.views}</p>
-              </div>
-            </a>
-          ))}
-        </motion.div>
-      </AnimatePresence>
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
+        {/* ✅ News Section */}
+        <section className="mb-10">
+          <h2 className="text-2xl font-bold mb-4">Amakuru Agezweho</h2>
+          {errorNews ? (
+            <p className="text-red-500">{errorNews}</p>
+          ) : paginatedNews.length === 0 ? (
+            <p className="text-gray-500">Nta makuru abonetse.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginatedNews.map((item, i) => (
+                <Link to={`/amakuru/${item._id}`} key={item._id}>
+                  <Card
+                    title={item.title}
+                    time={new Date(item.createdAt).toLocaleDateString()}
+                    image={item.image}
+                    delay={i * 0.1}
+                  />
+                </Link>
+              ))}
+            </div>
+          )}
+          {/* ✅ Pagination */}
+          {totalNewsPages > 1 && (
+            <div className="flex justify-center mt-6 space-x-2">
+              {[...Array(totalNewsPages)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setNewsPage(i + 1)}
+                  className={`px-3 py-1 rounded ${
+                    newsPage === i + 1
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* ✅ Videos Section */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4">Indirimbo Nshya</h2>
+          {errorVideos ? (
+            <p className="text-red-500">{errorVideos}</p>
+          ) : paginatedVideos.length === 0 ? (
+            <p className="text-gray-500">Nta ndirimbo zabonetse.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <AnimatePresence>
+                {paginatedVideos.map((video, i) => (
+                  <motion.a
+                    key={video.id}
+                    href={video.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.4, delay: i * 0.1 }}
+                    className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition duration-200"
+                  >
+                    <div className="aspect-video">
+                      <img
+                        src={video.thumbnail}
+                        alt={video.title}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2">
+                        {video.title}
+                      </h3>
+                      <p className="text-gray-700">{video.artist}</p>
+                      <p className="text-sm text-gray-500">{video.views}</p>
+                    </div>
+                  </motion.a>
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
+          {/* ✅ Pagination */}
+          {totalVideoPages > 1 && (
+            <div className="flex justify-center mt-6 space-x-2">
+              {[...Array(totalVideoPages)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setVideosPage(i + 1)}
+                  className={`px-3 py-1 rounded ${
+                    videosPage === i + 1
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
+      <Footer />
     </div>
   );
-  
 };
 
 export default Ahabanza;
