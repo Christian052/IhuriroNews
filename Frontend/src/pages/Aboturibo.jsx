@@ -106,14 +106,14 @@ const Aboturibo = () => {
           </motion.div>
         </motion.div>
 
-        <div className="mt-12">
-          <h1 className="text-xl font-semibold mb-4">About Us (Users)</h1>
+        {/* <div className="mt-12"> */}
+          {/* <h1 className="text-xl font-semibold mb-4">About Us (Users)</h1>
           <ul className="list-disc list-inside">
             {users.map((user) => (
               <li key={user._id}>{user.username || user._id}</li>
             ))}
-          </ul>
-        </div>
+          </ul> */}
+        {/* </div> */}
       </main>
       <Footer />
     </div>

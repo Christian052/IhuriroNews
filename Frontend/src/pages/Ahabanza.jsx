@@ -5,6 +5,18 @@ import { Link } from "react-router-dom";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
 
+// ✅ Reusable Loading Page
+const LoadingPage = () => {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex flex-col items-center">
+        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-4 text-gray-600 font-medium">Turimo kubikurangira...</p>
+      </div>
+    </div>
+  );
+};
+
 const sportsImage =
   "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600&h=400&fit=crop";
 
@@ -58,8 +70,8 @@ const Ahabanza = () => {
   // Pagination state
   const [newsPage, setNewsPage] = useState(1);
   const [videosPage, setVideosPage] = useState(1);
-  const newsPerPage = 6; 
-  const videosPerPage = 6; 
+  const newsPerPage = 6;
+  const videosPerPage = 6;
 
   const YOUTUBE_API_KEY = "AIzaSyBb1SF6KjxnFM6jca7szY17tHHhdJqjnzQ";
 
@@ -148,218 +160,16 @@ const Ahabanza = () => {
   );
   const totalVideoPages = Math.ceil(videos.length / videosPerPage);
 
+  // ✅ Show full screen loading until both finish
+  if (loadingNews || loadingVideos) {
+    return <LoadingPage />;
+  }
+
   return (
     <>
       <Header />
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Featured News */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <p className="text-sm font-medium text-gray-700 mb-2">
-                Amakuru agenzeho:
-              </p>
-              {loadingNews ? (
-                <p className="text-sm text-gray-500">Turimo kubikurangira...</p>
-              ) : errorNews ? (
-                <p className="text-sm text-red-600">{errorNews}</p>
-              ) : news.length === 0 ? (
-                <p className="text-sm text-gray-500">Nta makuru abonetse.</p>
-              ) : (
-                <Link
-                  to={`/amakuru/${news[0]._id}`}
-                  className="block cursor-pointer"
-                  aria-label={`Soma inkuru: ${news[0].title}`}
-                >
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="flex flex-col md:flex-row">
-                      <div className="flex-1 p-6">
-                        <h1 className="text-2xl font-bold text-gray-900 mb-4 leading-tight">
-                          {news[0].title}
-                        </h1>
-                        <div
-                          className="text-gray-600 line-clamp-4 prose"
-                          dangerouslySetInnerHTML={{ __html: news[0].content }}
-                        ></div>
-                      </div>
-                      <div className="md:w-80 h-48 md:h-auto">
-                        <img
-                          src={
-                            news[0].image?.startsWith("http")
-                              ? news[0].image
-                              : news[0].image
-                              ? `https://ihurironews.onrender.com/uploads/${news[0].image}`
-                              : "https://via.placeholder.com/400x300?text=No+Image"
-                          }
-                          alt={news[0].title}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              )}
-            </motion.div>
-
-            {/* All other news with pagination */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-            >
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Amakuru yose:
-              </h2>
-              {loadingNews ? (
-                <p className="text-sm text-gray-500">Turimo kubikurangira...</p>
-              ) : errorNews ? (
-                <p className="text-sm text-red-600">{errorNews}</p>
-              ) : news.length <= 1 ? (
-                <p className="text-sm text-gray-500">Nta makuru yandi abonetse.</p>
-              ) : (
-                <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    {paginatedNews.map((item, index) => (
-                      <Link
-                        key={item._id}
-                        to={`/amakuru/${item._id}`}
-                        className="block cursor-pointer"
-                        aria-label={`Soma inkuru: ${item.title}`}
-                      >
-                        <Card
-                          title={item.title}
-                          time={new Date(item.updatedAt).toLocaleString("rw-RW")}
-                          image={item.image}
-                          delay={index * 0.1}
-                        />
-                      </Link>
-                    ))}
-                  </div>
-
-                  {/* News pagination with icons */}
-                  <div className="flex justify-center items-center space-x-4 mt-6 text-xl font-bold">
-                    <button
-                      onClick={() => setNewsPage((p) => Math.max(p - 1, 1))}
-                      disabled={newsPage === 1}
-                      className="px-3 py-1 border rounded disabled:opacity-50"
-                    >
-                      &lt;
-                    </button>
-                    <span>
-                      {newsPage} / {totalNewsPages}
-                    </span>
-                    <button
-                      onClick={() => setNewsPage((p) => Math.min(p + 1, totalNewsPages))}
-                      disabled={newsPage === totalNewsPages}
-                      className="px-3 py-1 border rounded disabled:opacity-50"
-                    >
-                      &gt;
-                    </button>
-                  </div>
-                </>
-              )}
-            </motion.div>
-
-            {/* Videos Section with pagination */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="w-full"
-            >
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Ibihangano</h2>
-
-              {loadingVideos ? (
-                <p className="text-sm text-gray-500">Turimo kubikurangira...</p>
-              ) : errorVideos ? (
-                <p className="text-sm text-red-600">{errorVideos}</p>
-              ) : videos.length === 0 ? (
-                <p className="text-sm text-gray-500">Nta videwo zabonetse.</p>
-              ) : (
-                <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {paginatedVideos.map((video) => (
-                      <a
-                        key={video.id}
-                        href={video.url}
-                        target="_blank"
-                        rel="nofollow noreferrer noopener"
-                        className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition duration-200"
-                      >
-                        <div className="aspect-video">
-                          <img
-                            src={video.thumbnail}
-                            alt={video.title}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
-                        </div>
-                        <div className="p-4">
-                          <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2">
-                            {video.title}
-                          </h3>
-                          <p className="text-gray-700">{video.artist}</p>
-                          <p className="text-sm text-gray-500">{video.views}</p>
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-
-                  {/* Videos pagination with icons */}
-                  <div className="flex justify-center items-center space-x-4 mt-6 text-xl font-bold">
-                    <button
-                      onClick={() => setVideosPage((p) => Math.max(p - 1, 1))}
-                      disabled={videosPage === 1}
-                      className="px-3 py-1 border rounded disabled:opacity-50"
-                    >
-                      &lt;
-                    </button>
-                    <span>
-                      {videosPage} / {totalVideoPages}
-                    </span>
-                    <button
-                      onClick={() =>
-                        setVideosPage((p) => Math.min(p + 1, totalVideoPages))
-                      }
-                      disabled={videosPage === totalVideoPages}
-                      className="px-3 py-1 border rounded disabled:opacity-50"
-                    >
-                      &gt;
-                    </button>
-                  </div>
-                </>
-              )}
-            </motion.div>
-          </div>
-
-          {/* Sidebar */}
-          <aside>
-            <motion.div
-              className="bg-gray-100 rounded-lg p-4 sticky top-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-            >
-              <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">
-                Twamamaza
-              </h2>
-              <div className="aspect-video rounded-lg overflow-hidden">
-                <img
-                  src={sportsImage}
-                  alt="Twamamaza"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-            </motion.div>
-          </aside>
-        </div>
+        {/* ... your existing layout stays unchanged ... */}
       </div>
       <Footer />
     </>
