@@ -165,15 +165,47 @@ const Ahabanza = () => {
     return <LoadingPage />;
   }
 
-  return (
-    <>
-      <Header />
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ... your existing layout stays unchanged ... */}
-      </div>
-      <Footer />
-    </>
+   return (
+    <div className="relative overflow-hidden">
+      <AnimatePresence initial={false} mode="wait">
+        <motion.div
+          key={startIndex}
+          className="flex space-x-6"
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -50 }}
+          transition={{ duration: 0.7 }}
+        >
+          {visibleCards.map((video) => (
+            <a
+              key={video.id}
+              href={video.url}
+              target="_blank"
+              rel="nofollow noreferrer noopener"
+              className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition duration-200 flex-shrink-0 w-[30%]"
+            >
+              <div className="aspect-video">
+                <img
+                  src={video.thumbnail}
+                  alt={video.title}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <div className="p-4">
+                <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2">
+                  {video.title}
+                </h3>
+                <p className="text-gray-700">{video.artist}</p>
+                <p className="text-sm text-gray-500">{video.views}</p>
+              </div>
+            </a>
+          ))}
+        </motion.div>
+      </AnimatePresence>
+    </div>
   );
+  
 };
 
 export default Ahabanza;
