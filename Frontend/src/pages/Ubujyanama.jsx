@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Header from '../component/Header';
 import Footer from '../component/Footer';
 import { Link } from 'react-router-dom';
+import LoadingPage from '../components/LoadingPage'; // ✅ import spinner
 
 const Ubujyanama = () => {
   const [activeTab, setActiveTab] = useState('Iyobokamana');
@@ -31,11 +32,12 @@ const Ubujyanama = () => {
 
   const filteredArticles = articles.filter((item) => item.category === activeTab);
 
+  // ✅ Show full-screen loading while fetching
+  if (loading) return <LoadingPage />;
+
   return (
-    // Add these classes here to create a flex column container for full height
     <div className="min-h-screen flex flex-col">
       <Header />
-      {/* Make main content flex-grow so it takes remaining space */}
       <main className="max-w-6xl mx-auto px-4 py-8 flex-grow">
         <div className="flex justify-center space-x-4 mb-8">
           {categoriesToDisplay.map((category) => (
@@ -53,12 +55,10 @@ const Ubujyanama = () => {
           ))}
         </div>
 
-        {loading ? (
-          <p className="text-center text-gray-500">Loading articles...</p>
-        ) : error ? (
+        {error ? (
           <p className="text-center text-red-500">Failed to load articles.</p>
         ) : filteredArticles.length === 0 ? (
-          <p className="text-center text-gray-500">No articles found.</p>
+          <p className="text-center text-gray-500">Ntamakuru aboneka kuri iyi category.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredArticles.map((card) => (

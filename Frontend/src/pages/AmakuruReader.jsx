@@ -2,37 +2,48 @@ import React, { useEffect, useState } from "react";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
 import { useParams, Link } from "react-router-dom";
+import LoadingPage from "../components/LoadingPage"; // ✅ import spinner
 
 const AmakuruReader = () => {
   const { id } = useParams();
   const [article, setArticle] = useState(null);
   const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true); // ✅ loading state
 
   useEffect(() => {
-    fetch(`https://ihurironews.onrender.com/api/news/${id}`)
-      .then((res) => {
+    const fetchArticle = async () => {
+      try {
+        const res = await fetch(`https://ihurironews.onrender.com/api/news/${id}`);
         if (!res.ok) throw new Error("Inkuru ntiboneka");
-        return res.json();
-      })
-      .then((data) => setArticle(data))
-      .catch((err) => {
+        const data = await res.json();
+        setArticle(data);
+      } catch (err) {
         console.error("Error fetching article:", err);
         setArticle(null);
-      });
+      } finally {
+        setLoading(false); // ✅ stop loading
+      }
+    };
+    fetchArticle();
   }, [id]);
 
   useEffect(() => {
-    fetch("https://ihurironews.onrender.com/api/news")
-      .then((res) => {
+    const fetchArticles = async () => {
+      try {
+        const res = await fetch("https://ihurironews.onrender.com/api/news");
         if (!res.ok) throw new Error("Amakuru ntaboneka");
-        return res.json();
-      })
-      .then((data) => setArticles(data))
-      .catch((err) => {
+        const data = await res.json();
+        setArticles(data);
+      } catch (err) {
         console.error("Error fetching articles:", err);
         setArticles([]);
-      });
+      }
+    };
+    fetchArticles();
   }, []);
+
+  // ✅ Show loading page while fetching
+  if (loading) return <LoadingPage />;
 
   if (!article) {
     return (
@@ -115,7 +126,7 @@ const AmakuruReader = () => {
                       src={
                         item.image?.startsWith("http")
                           ? item.image
-                          : `https://ihurironews.onrender.com/uploads/images/${item.image}`
+                          : `https://ihurironews.onrender.com/uploads/${item.image}`
                       }
                       alt={`Ifoto y'inkuru ${item.title}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200"

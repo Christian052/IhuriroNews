@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import Header from "../component/Header";
 import Footer from "../component/Footer";
+import LoadingPage from "../components/LoadingPage";
+
 
 const sportsImage =
   "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600&h=400&fit=crop";
@@ -55,11 +57,17 @@ const Ahabanza = () => {
   const [errorNews, setErrorNews] = useState("");
   const [errorVideos, setErrorVideos] = useState("");
 
-  // Pagination state
+  // Pagination states
   const [newsPage, setNewsPage] = useState(1);
   const [videosPage, setVideosPage] = useState(1);
-  const newsPerPage = 6; 
-  const videosPerPage = 6; 
+  const NEWS_PER_PAGE = 6;
+  const VIDEOS_PER_PAGE = 6;
+
+  const totalNewsPages = Math.ceil(Math.max(news.length - 1, 0) / NEWS_PER_PAGE);
+  const totalVideoPages = Math.ceil(videos.length / VIDEOS_PER_PAGE);
+
+  const paginatedNews = news.slice(1 + (newsPage - 1) * NEWS_PER_PAGE, 1 + newsPage * NEWS_PER_PAGE);
+  const paginatedVideos = videos.slice((videosPage - 1) * VIDEOS_PER_PAGE, videosPage * VIDEOS_PER_PAGE);
 
   const YOUTUBE_API_KEY = "AIzaSyBb1SF6KjxnFM6jca7szY17tHHhdJqjnzQ";
 
@@ -68,6 +76,7 @@ const Ahabanza = () => {
     return match ? match[1] : null;
   };
 
+  // Fetch news
   useEffect(() => {
     const fetchNews = async () => {
       try {
@@ -82,13 +91,14 @@ const Ahabanza = () => {
     fetchNews();
   }, []);
 
+  // Fetch videos from DB + YouTube API
   useEffect(() => {
     const fetchDbVideos = async () => {
       try {
         const response = await axios.get("https://ihurironews.onrender.com/api/music");
         const dbVideos = response.data;
 
-        if (dbVideos.length === 0) {
+        if (!dbVideos.length) {
           setVideos([]);
           setLoadingVideos(false);
           return;
@@ -117,6 +127,7 @@ const Ahabanza = () => {
                 };
               })
             );
+
             setVideos(results.filter(Boolean));
           } catch (err) {
             console.error("YouTube API error:", err);
@@ -125,6 +136,7 @@ const Ahabanza = () => {
             setLoadingVideos(false);
           }
         };
+
         fetchVideoData();
       } catch (error) {
         console.error("Error fetching music from DB:", error);
@@ -132,21 +144,11 @@ const Ahabanza = () => {
         setLoadingVideos(false);
       }
     };
+
     fetchDbVideos();
   }, []);
-
-  // Pagination calculations
-  const paginatedNews = news.slice(1).slice(
-    (newsPage - 1) * newsPerPage,
-    newsPage * newsPerPage
-  );
-  const totalNewsPages = Math.ceil((news.length - 1) / newsPerPage);
-
-  const paginatedVideos = videos.slice(
-    (videosPage - 1) * videosPerPage,
-    videosPage * videosPerPage
-  );
-  const totalVideoPages = Math.ceil(videos.length / videosPerPage);
+    // ✅ Show full screen loading until both finish
+  if (loadingNews || loadingVideos) return <LoadingPage />;
 
   return (
     <>
@@ -207,7 +209,7 @@ const Ahabanza = () => {
               )}
             </motion.div>
 
-            {/* All other news with pagination */}
+            {/* All other news */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -242,7 +244,6 @@ const Ahabanza = () => {
                     ))}
                   </div>
 
-                  {/* News pagination with icons */}
                   <div className="flex justify-center items-center space-x-4 mt-6 text-xl font-bold">
                     <button
                       onClick={() => setNewsPage((p) => Math.max(p - 1, 1))}
@@ -266,7 +267,7 @@ const Ahabanza = () => {
               )}
             </motion.div>
 
-            {/* Videos Section with pagination */}
+            {/* Videos Section */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -311,7 +312,6 @@ const Ahabanza = () => {
                     ))}
                   </div>
 
-                  {/* Videos pagination with icons */}
                   <div className="flex justify-center items-center space-x-4 mt-6 text-xl font-bold">
                     <button
                       onClick={() => setVideosPage((p) => Math.max(p - 1, 1))}

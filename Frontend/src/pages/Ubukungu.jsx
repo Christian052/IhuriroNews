@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react'
 import Header from '../component/Header'
 import Footer from '../component/Footer'
 import { Link } from 'react-router-dom'
+import LoadingPage from '../components/LoadingPage' // ✅ import loading spinner
 
 const Ubukungu = () => {
   const [articles, setArticles] = useState([])
+  const [loading, setLoading] = useState(true) // ✅ loading state
 
   useEffect(() => {
     fetch('https://ihurironews.onrender.com/api/news')
@@ -14,8 +16,12 @@ const Ubukungu = () => {
           (item) => item.category?.toLowerCase() === 'ubukungu'
         )
         setArticles(filtered)
+        setLoading(false) // ✅ stop loading
       })
-      .catch((err) => console.error('Error fetching articles:', err))
+      .catch((err) => {
+        console.error('Error fetching articles:', err)
+        setLoading(false) // ✅ stop loading even on error
+      })
   }, [])
 
   const marketData = [
@@ -27,6 +33,9 @@ const Ubukungu = () => {
 
   const featuredArticle = articles[0]
   const businessArticles = articles.slice(1, 6)
+
+  // ✅ Show loading page while fetching
+  if (loading) return <LoadingPage />
 
   return (
     <>
@@ -47,7 +56,9 @@ const Ubukungu = () => {
                 <Link to={`/amakuru/${featuredArticle._id}`}>
                   <div className="relative">
                     <img
-                      src={featuredArticle.image}
+                      src={featuredArticle.image?.startsWith('http')
+                        ? featuredArticle.image
+                        : `https://ihurironews.onrender.com/uploads/${featuredArticle.image}`}
                       alt={featuredArticle.title}
                       className="w-full h-64 object-cover"
                     />
@@ -85,7 +96,9 @@ const Ubukungu = () => {
                       <div className="flex">
                         <div className="w-48 h-32 flex-shrink-0 relative">
                           <img
-                            src={article.image}
+                            src={article.image?.startsWith('http')
+                              ? article.image
+                              : `https://ihurironews.onrender.com/uploads/${article.image}`}
                             alt={article.title}
                             className="w-full h-full object-cover"
                           />
@@ -127,9 +140,7 @@ const Ubukungu = () => {
                     <div className="text-right">
                       <p className="font-bold text-gray-900 text-sm">{item.value}</p>
                       <p
-                        className={`text-xs ${
-                          item.isPositive ? 'text-green-600' : 'text-red-600'
-                        }`}
+                        className={`text-xs ${item.isPositive ? 'text-green-600' : 'text-red-600'}`}
                       >
                         {item.change}
                       </p>

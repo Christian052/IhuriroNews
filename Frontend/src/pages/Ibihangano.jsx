@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Header from '../component/Header';
 import Footer from '../component/Footer';
 import axios from 'axios';
+import LoadingPage from '../components/LoadingPage'; // ✅ import spinner
 
 const Ibihangano = () => {
   const YOUTUBE_API_KEY = 'AIzaSyBb1SF6KjxnFM6jca7szY17tHHhdJqjnzQ';
@@ -21,9 +22,10 @@ const Ibihangano = () => {
       try {
         const response = await axios.get('https://ihurironews.onrender.com/api/music');
         setDbVideos(response.data);
-      } catch (error) {
-        console.error('Error fetching music from DB:', error);
+      } catch (err) {
+        console.error('Error fetching music from DB:', err);
         setError('Ntibishobotse kubona indirimbo.');
+        setLoading(false); // ✅ stop loading on DB fetch error
       }
     };
     fetchDbVideos();
@@ -36,8 +38,8 @@ const Ibihangano = () => {
       );
       const channel = res.data.items?.[0];
       return channel?.snippet?.publishedAt || null;
-    } catch (error) {
-      console.error('YouTube Channel API error:', error);
+    } catch (err) {
+      console.error('YouTube Channel API error:', err);
       return null;
     }
   };
@@ -91,20 +93,19 @@ const Ibihangano = () => {
     fetchVideoData();
   }, [dbVideos]);
 
+  // ✅ Show full screen spinner while loading
+  if (loading) return <LoadingPage />;
+
   return (
     <>
       <Header />
       <div className="max-w-7xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Muzika</h1>
 
-        {loading ? (
-          <div className="text-center py-10 text-gray-700 font-medium text-lg">
-            Loading videos...
-          </div>
-        ) : error ? (
+        {error ? (
           <p className="text-center text-red-600">{error}</p>
         ) : videos.length === 0 ? (
-          <p className="text-center text-gray-600">No videos available.</p>
+          <p className="text-center text-gray-600">Ntindirimbo ziboneka.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {videos.map((video) => (
