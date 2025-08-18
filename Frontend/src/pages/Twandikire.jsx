@@ -191,7 +191,7 @@ const Twandikire = () => {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-900">Aho Tuba</p>
+                  <p className="text-sm font-medium text-gray-900">Wadusanga</p>
                   <p className="text-sm text-gray-600">Kigali, Rwanda<br />KG 123 St, Gasabo</p>
                 </div>
               </div>
