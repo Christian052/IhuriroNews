@@ -58,7 +58,7 @@ const Twandikire = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Twohereze Ubutumwa</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Twoherereze Ubutumwa</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -156,7 +156,7 @@ const Twandikire = () => {
 
         <div className="space-y-6">
           <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Menya Ibikubijye</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Kubindi Bisobanuro</h3>
 
             <div className="space-y-4">
               <div className="flex items-start">
@@ -191,7 +191,7 @@ const Twandikire = () => {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-900">Aho duba</p>
+                  <p className="text-sm font-medium text-gray-900">Aho Tuba</p>
                   <p className="text-sm text-gray-600">Kigali, Rwanda<br />KG 123 St, Gasabo</p>
                 </div>
               </div>
